@@ -1,0 +1,107 @@
+import pandas as pd
+import pywhatkit
+import datetime
+import time
+import re
+
+# Load Excel
+df = pd.read_excel("passports.xlsx")
+df.columns = df.columns.str.strip()
+
+# Parse DOB and Expiry columns
+df["DOB"] = pd.to_datetime(df["DOB"], format='%d.%m.%Y', errors='coerce')
+df["Expiry"] = pd.to_datetime(df["Expiry"], format='%d.%m.%Y', errors='coerce')
+df = df[df["DOB"].notna()]  # Remove rows with invalid DOB
+
+# Ask user input
+check_future = input("🔍 Do you want to check a specific date for upcoming birthdays? (y/n): ").strip().lower()
+
+if check_future == 'y':
+    future_input = input("📅 Enter date in DD.MM format (e.g. 15.05): ").strip()
+
+    try:
+        future_day, future_month = map(int, future_input.split('.'))
+        datetime.date(2000, future_month, future_day)  # Validate date
+    except Exception:
+        print("❌ Invalid date format or non-existent date. Please use DD.MM like 25.12.")
+        exit()
+
+    # Search birthdays on specified date
+    future_df = df[(df["DOB"].dt.day == future_day) & (df["DOB"].dt.month == future_month)]
+
+    if future_df.empty:
+        print(f"📭 No birthdays on {future_input}.")
+    else:
+        print(f"\n🎈 Birthdays on {future_input}:")
+        for _, row in future_df.iterrows():
+            name = row["Name"]
+            passport = row.get("Passport", "N/A")
+            expiry = row["Expiry"].strftime("%d-%m-%Y") if pd.notna(row["Expiry"]) else "N/A"
+            phone_raw = str(row.get("Phone", "")).strip()
+            phone_digits = re.sub(r"\D", "", phone_raw)
+
+            # Phone validation
+            if not phone_digits:
+                phone_status = "No phone number"
+            elif len(phone_digits) != 10 or not phone_digits.startswith(("7", "8", "9")):
+                phone_status = "Invalid phone number"
+            else:
+                phone_status = f"Valid (+91{phone_digits})"
+
+            print(f"👤 {name} | 📞 {phone_status} | 🛂 {passport} | ⌛ Expiry: {expiry}")
+
+else:
+    # Check today's birthdays
+    today = datetime.date.today()
+    today_day = today.day
+    today_month = today.month
+
+    birthday_df = df[(df["DOB"].dt.day == today_day) & (df["DOB"].dt.month == today_month)]
+
+    if birthday_df.empty:
+        print("🎂 No birthdays today.")
+    else:
+        print(f"\n🎉 Found {len(birthday_df)} birthdays today:\n")
+
+        for _, row in birthday_df.iterrows():
+            name = row["Name"]
+            passport_number = row.get("Passport", "N/A")
+            expiry = row["Expiry"].strftime("%d-%m-%Y") if pd.notna(row["Expiry"]) else "N/A"
+            phone_raw = str(row.get("Phone", "")).strip()
+            phone_digits = re.sub(r"\D", "", phone_raw)
+
+            # Validate phone
+            if not phone_digits:
+                phone_status = "No phone number"
+            elif len(phone_digits) != 10 or not phone_digits.startswith(("7", "8", "9")):
+                phone_status = "Invalid phone number"
+            else:
+                phone_status = f"Valid (+91{phone_digits})"
+
+            print(f"👤 {name} | 📞 {phone_status} | 🛂 {passport_number} | ⌛ Expiry: {expiry}")
+
+            if "Valid" in phone_status:
+                phone = "+91" + phone_digits
+                message = f"""🎉 Happy Birthday {name}! 🎂
+
+We hope you're enjoying your special day.
+
+📘 Passport Number: {passport_number}
+📅 Expiry Date: {expiry}
+
+Have you renewed your passport yet? If not, Sanskruti Travels can help you with the renewal process hassle-free. ✈️🛂
+
+Contact us today!
+- Team Sanskruti Travels"""
+
+                try:
+                    print(f"💬 Sending message to {name} at {phone}")
+                    pywhatkit.sendwhatmsg_instantly(phone, message, wait_time=15, tab_close=True, close_time=3)
+                    time.sleep(10)
+                except Exception as e:
+                    print(f"❌ Error sending to {phone}: {e}")
+
+
+
+
+

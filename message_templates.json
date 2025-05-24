@@ -1,0 +1,4 @@
+{
+    "birthday": "\ud83c\udf89 Happy Birthday {name}! \ud83c\udf82\n\nWe hope you're enjoying your special day.\n\nHave you renewed your passport yet? If not, Sanskruti Travels can help you with the renewal process hassle-free. \u2708\ufe0f\ud83d\udec2\n\nContact us today!\n- Team Sanskruti Travels",
+    "expiry": "\u26a0\ufe0f Passport Expiration Alert \u26a0\ufe0f\n\nHello {name},\n\nThis is a friendly reminder that your passport will expire in {days_left} days.\n\n\ud83d\udcd8 Passport Number: {passport}\n\ud83d\udcc5 Expiry Date: {expiry}\n\nSanskruti Travels can help you with the renewal process hassle-free. Don't wait until the last minute!\n\nContact us today for assistance.\n- Team Sanskruti Travels"
+}
