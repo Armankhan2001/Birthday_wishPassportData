@@ -50,7 +50,7 @@ def display_header():
         # Add a button to directly load sample data for testing
         if st.button("📂 Load Sample Data (For Testing)"):
             try:
-                sample_file = 'sample_passports.xlsx'
+                sample_file = 'passports.xlsx'
                 if os.path.exists(sample_file):
                     df = load_passport_data(sample_file)
                     if df is not None and not df.empty:
